@@ -31,6 +31,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed issue with Hybrid renderer compatibility [1296776]
 - Fixed the Custom Editor GUI field in the Graph settings that was ignored.
 - Fixed an issue where SampleRawCubemapNode were requiring the Normal in Object space instead of World space [1307962]
+- Fixed a bug in master node preview generation that failed compilation when a block was deleted [1319066] (https://issuetracker.unity3d.com/issues/shadergraph-deleting-stack-blocks-of-universal-rp-targeted-shadergraph-causes-the-main-preview-to-fail-to-compile)
+- Fixed a bug where property deduplication was failing and spamming errors [1317809] (https://issuetracker.unity3d.com/issues/console-error-when-adding-a-sample-texture-operator-when-a-sampler-state-property-is-present-in-blackboard)
+- Fixed a bug where synchronously compiling an unencountered shader variant for preview was causing long delays in graph updates [1324429]
+- Fixed a issue when clicking a property in subgraph blackboard will throw null exception errors.[1328377](https://issuetracker.unity3d.com/product/unity/issues/guid/1328377/)
+- Fixed an issue where an integer property would be exposed in the material inspector as a float [1332563]
+- Fixed an issue where upgrading from an older version of ShaderGraph would cause Enum keywords to be not exposed [1332510]
+- Fixed a bug in ShaderGraph where sticky notes couldn't be copied and pasted [1221042].
+- Fixed SubGraph SamplerState property defaults not being respected [1336119]
+- Fixed an issue where nested subgraphs with identical SamplerState property settings could cause compile failures [1336089]
+- Fixed an issue where SamplerState properties could not be renamed after creation [1336126]
+- Fixed a ShaderGraph issue where unused blocks get removed on edge replacement [1336832].
 
 ## [10.3.0] - 2020-11-03
 

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
+using TextureDimension = UnityEngine.Rendering.TextureDimension;
 
 namespace UnityEditor.ShaderGraph
 {
@@ -13,6 +13,7 @@ namespace UnityEditor.ShaderGraph
         {
             public string name;
             public int textureId;
+            public TextureDimension dimension;
             public bool modifiable;
         }
 
@@ -38,6 +39,11 @@ namespace UnityEditor.ShaderGraph
             }
 
             m_Properties.Sort((a, b) => String.CompareOrdinal(a.referenceName, b.referenceName));
+
+            // reference name indices are now messed up, rebuild them
+            m_ReferenceNames.Clear();
+            for (int i = 0; i < m_Properties.Count; i++)
+                m_ReferenceNames.Add(m_Properties[i].referenceName, i);
         }
 
         public void SetReadOnly()
@@ -58,23 +64,8 @@ namespace UnityEditor.ShaderGraph
                 else
                 {
                     var bh = bHLSLProps[i];
-                    if ((ah.name != bh.name) ||
-                        (ah.type != bh.type) ||
-                        (ah.precision != bh.precision) ||
-                        (ah.declaration != bh.declaration) ||
-                        ((ah.customDeclaration == null) != (bh.customDeclaration == null)))
-                    {
+                    if (!ah.ValueEquals(bh))
                         equivalent = false;
-                    }
-                    else if (ah.customDeclaration != null)
-                    {
-                        var ssba = new ShaderStringBuilder();
-                        var ssbb = new ShaderStringBuilder();
-                        ah.customDeclaration(ssba);
-                        bh.customDeclaration(ssbb);
-                        if (ssba.ToCodeBlock() != ssbb.ToCodeBlock())
-                            equivalent = false;
-                    }
                     bHLSLProps.RemoveAt(i);
                 }
             });
@@ -123,8 +114,24 @@ namespace UnityEditor.ShaderGraph
             if (m_HLSLProperties == null)
             {
                 m_HLSLProperties = new List<HLSLProperty>();
+                var dict = new Dictionary<string, int>();
                 foreach (var p in m_Properties)
-                    p.ForeachHLSLProperty(h => m_HLSLProperties.Add(h));
+                {
+                    p.ForeachHLSLProperty(
+                        h =>
+                        {
+                            if (dict.TryGetValue(h.name, out int index))
+                            {
+                                // check if same property
+                                if (!h.ValueEquals(m_HLSLProperties[index]))
+                                    Debug.LogError("Two different HLSL Properties declared with the same name: " + h.name + " and " +  m_HLSLProperties[index].name);
+                                return;
+                            }
+                            dict.Add(h.name, m_HLSLProperties.Count);
+                            m_HLSLProperties.Add(h);
+                        }
+                    );
+                }
             }
             return m_HLSLProperties;
         }
@@ -316,11 +323,11 @@ namespace UnityEditor.ShaderGraph
 #endif
         }
 
-        public List<TextureInfo> GetConfiguredTexutres()
+        public List<TextureInfo> GetConfiguredTextures()
         {
             var result = new List<TextureInfo>();
 
-            // TODO: this should be interface based instead of looking for hard codeded tyhpes
+            // TODO: this should be interface based instead of looking for hard coded types
 
             foreach (var prop in properties.OfType<Texture2DShaderProperty>())
             {
@@ -330,6 +337,7 @@ namespace UnityEditor.ShaderGraph
                     {
                         name = prop.referenceName,
                         textureId = prop.value.texture != null ? prop.value.texture.GetInstanceID() : 0,
+                        dimension = TextureDimension.Tex2D,
                         modifiable = prop.modifiable
                     };
                     result.Add(textureInfo);
@@ -344,6 +352,7 @@ namespace UnityEditor.ShaderGraph
                     {
                         name = prop.referenceName,
                         textureId = prop.value.textureArray != null ? prop.value.textureArray.GetInstanceID() : 0,
+                        dimension = TextureDimension.Tex2DArray,
                         modifiable = prop.modifiable
                     };
                     result.Add(textureInfo);
@@ -358,6 +367,7 @@ namespace UnityEditor.ShaderGraph
                     {
                         name = prop.referenceName,
                         textureId = prop.value.texture != null ? prop.value.texture.GetInstanceID() : 0,
+                        dimension = TextureDimension.Tex3D,
                         modifiable = prop.modifiable
                     };
                     result.Add(textureInfo);
@@ -372,6 +382,7 @@ namespace UnityEditor.ShaderGraph
                     {
                         name = prop.referenceName,
                         textureId = prop.value.cubemap != null ? prop.value.cubemap.GetInstanceID() : 0,
+                        dimension = TextureDimension.Cube,
                         modifiable = prop.modifiable
                     };
                     result.Add(textureInfo);

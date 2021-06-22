@@ -4,71 +4,96 @@ using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
-    public MovableCharacter character;
     private Vector2 fingerDown;
     private Vector2 fingerUp;
-    public bool detectSwipeOnlyAfterRelease = false;
+    public bool detectSwipeOnlyAfterRelease = true;
     
     public float SWIPE_THRESHOLD = 20f;
-    
-    private float touchDuration;
-    private float lastTapTime;
-    private int tapCount = 0;
+    private float DOUBLE_TAP_TIME = .2f;
+    private bool sliding;
 
+    private float lastTap;
+    private float secsSinceLastTap;
+
+    private float fingerDownX;
+    private float fingerUpX;
+    private float fingerDownY;
+    private float fingerUpY;
+    
     // Update is called once per frame
     void Update()
     {
-        
-        if(Input.touchCount > 0){ //if there is any touch
-            touchDuration += Time.deltaTime;
-            if(Input.GetTouch(0).phase == TouchPhase.Ended && touchDuration < 0.2f) //making sure it only check the touch once && it was a short touch/tap and not a dragging.
-                StartCoroutine("singleOrDouble");
-        }
-        else
-            touchDuration = 0.0f;
-
-        foreach (Touch touch in Input.touches)
+        if(GameManager.getInstance().CurrentGameState == GameManager.GameState.MainGame)
         {
-            if (touch.phase == TouchPhase.Began)
+            Debug.Log("MANAGER" + GameManager.getInstance());
+            Debug.Log("Player" + GameManager.getInstance().player);
+            foreach (Touch touch in Input.touches)
             {
-                fingerUp = touch.position;
-                fingerDown = touch.position;
-            }
-
-            //Detects Swipe while finger is still moving
-            if (touch.phase == TouchPhase.Moved)
-            {
-                if (!detectSwipeOnlyAfterRelease)
+                if (touch.phase == TouchPhase.Began)
                 {
+                    fingerUp = touch.position;
                     fingerDown = touch.position;
+                    Vector3 pointUp = GameManager.cam.ScreenToViewportPoint(fingerUp);
+                    fingerUpX = pointUp.x;
+                    fingerUpY = pointUp.y;
+                    Vector3 pointDown = GameManager.cam.ScreenToViewportPoint(fingerDown);
+                    fingerDownX = pointDown.x;
+                    fingerDownY = pointDown.y;
+
+                    GameManager.getInstance().player.onSlideStart();
+                    sliding = true;
+                }
+
+
+                //Detects Swipe while finger is still moving
+                if (touch.phase == TouchPhase.Moved)
+                {
+                    Vector3 pointDown = GameManager.cam.ScreenToViewportPoint(touch.position);
+                    fingerDownX = pointDown.x;
+                    fingerDownY = pointDown.y;
+                    if (!detectSwipeOnlyAfterRelease)
+                    {
+                        fingerDown = touch.position;
+                        checkSwipe();
+                    }
+                }
+
+                //Detects swipe after finger is released
+                if (touch.phase == TouchPhase.Ended)
+                {
+                    sliding = false;
+                    fingerDown = touch.position;
+                    Vector3 pointDown = GameManager.cam.ScreenToViewportPoint(fingerDown);
+                    fingerDownX = pointDown.x;
+                    fingerDownY = pointDown.y;
                     checkSwipe();
+                    checkTap();
+                    GameManager.getInstance().player.onSlideEnded();
+                }
+
+                if (sliding)
+                {
+                    GameManager.getInstance().player.onSlide(new Vector2(fingerDownX-fingerUpX,fingerDownY-fingerUpY));
                 }
             }
-
-            //Detects swipe after finger is released
-            if (touch.phase == TouchPhase.Ended)
-            {
-                fingerDown = touch.position;
-                checkSwipe();
-            }
         }
+        
     }
 
     #region  Tap
-    IEnumerator singleOrDouble(){
-        yield return new WaitForSeconds(0.3f);
-        tapCount++;
-        //Debug.Log((Time.time) - lastTapTime );
-        if(tapCount % 2 == 0 && (Time.time) - lastTapTime < .8f){
-            //this coroutine has been called twice. We should stop the next one here otherwise we get two double tap
-            StopCoroutine("singleOrDouble");
-            character.onDoubleTap();
+
+    private void checkTap()
+    {
+        secsSinceLastTap = Time.time - lastTap;
+        if(secsSinceLastTap <= DOUBLE_TAP_TIME)
+        {
+            GameManager.getInstance().player.onDoubleTap();
         }
         else
         {
-           lastTapTime = Time.time;
-           character.onTap(); 
+            GameManager.getInstance().player.onTap();
         }
+        lastTap = Time.time;
     }
     #endregion
 
@@ -81,12 +106,12 @@ public class InputManager : MonoBehaviour
             //Debug.Log("Vertical");
             if (fingerDown.y - fingerUp.y > 0)//up swipe
             {
-                character.onSwipeUp();
+                GameManager.getInstance().player.onSwipeUp();
                 //OnSwipeUp();
             }
             else if (fingerDown.y - fingerUp.y < 0)//Down swipe
             {
-                character.onSwipeDown();
+                GameManager.getInstance().player.onSwipeDown();
                 //OnSwipeDown();
             }
             fingerUp = fingerDown;
@@ -98,12 +123,12 @@ public class InputManager : MonoBehaviour
             //Debug.Log("Horizontal");
             if (fingerDown.x - fingerUp.x > 0)//Right swipe
             {
-                character.onSwipeRight();
+                GameManager.getInstance().player.onSwipeRight();
                 //nSwipeRight();
             }
             else if (fingerDown.x - fingerUp.x < 0)//Left swipe
             {
-                character.onSwipeLeft();
+                GameManager.getInstance().player.onSwipeLeft();
                 //OnSwipeLeft();
             }
             fingerUp = fingerDown;
