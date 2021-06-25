@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.45132375, g: 0.5002464, b: 0.56926405, a: 1}
+  m_IndirectSpecularColor: {r: 0.44221509, g: 0.49123245, b: 0.57112837, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1175,8 +1175,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1951b91344ac8f45874cfbc09cfb4c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectSwipeOnlyAfterRelease: 0
   SWIPE_THRESHOLD: 20
+  detectSwipeOnlyAfterRelease: 0
+  detectObjectTap: 1
 --- !u!4 &2125934923
 Transform:
   m_ObjectHideFlags: 0

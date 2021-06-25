@@ -63,7 +63,12 @@ public class GameManager : MonoBehaviour
         switch (CurrentGameState)
         {
             case GameState.Prepare:
-                CurrentGameState = GameState.MainGame;
+                if (InputManager.getInstance().IsTap)
+                {
+                    Destroy(GameObject.FindGameObjectWithTag("UIStart"));
+                    CurrentGameState = GameState.MainGame;
+                }
+                
                 break;
             case GameState.MainGame:
                 playerPivot.transform.localPosition += Vector3.forward * runSpeed * Time.deltaTime;
