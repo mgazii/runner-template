@@ -21,7 +21,7 @@ After cloning you can add the project to Unity
 ## Usage
 
 #### GameManager
-Used For Managing GameStates. Use  for state registration then define a void function with enum GameState's name.
+Used For Managing GameStates. Use state registration then define a void function with enum GameState's name.
 
 ```c#
 // GameStateEvents add or remove new states
