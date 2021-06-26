@@ -24,13 +24,13 @@ After cloning you can add the project to Unity
 Used For Managing GameStates. Use  for state registration then define a void function with enum GameState's name.
 
 ```c#
-# GameStateEvents add or remove new states
+// GameStateEvents add or remove new states
 public enum GameState {PREP,MID,END} 
 
-# registers class to GameStateEvents 
+// registers class to GameStateEvents 
 GameManager.Instance.AddGameStateListener(this) 
 
-# runs on PREP state, for another define function with enum GameState's name
+// runs on PREP state, same as other states, multiple states can be used
 void PREP(){} 
 ```
 
@@ -39,19 +39,15 @@ void PREP(){}
 Detection of Swipe, Slide, Tap, Double Tap or Tapping on objects with collider.
 
 ```c#
-# tap registration
+// tap registration
 InputManager.Instance.RegisterTap(UnityAction<Tap> tapFunc) 
 
-# tap function 
+// tap function 
 void tapFunc(Tap tap){} 
+/* Same with swipe and slide.
+RegisterSlide => UnityAction<Slide>
+RegisterSwipe => UnityAction<Swipe> *\
 ```
-
-Same with swipe and slide.
- 
-RegisterSlide => UnityAction\<Slide\>
-
-RegisterSwipe => UnityAction\<Swipe\>
-
 
 ## Contributing
 It's very simple project. No contribution required
