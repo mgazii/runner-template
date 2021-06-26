@@ -48,9 +48,9 @@ void tapFunc(Tap tap){}
 
 Same with swipe and slide.
  
-RegisterSlide => UnityAction<Slide>
+RegisterSlide => UnityAction\<Slide\>
 
-RegisterSwipe => UnityAction<Swipe>
+RegisterSwipe => UnityAction\<Swipe\>
 
 
 ## Contributing
