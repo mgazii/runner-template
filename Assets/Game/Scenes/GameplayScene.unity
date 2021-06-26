@@ -132,6 +132,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 131648906}
+  - component: {fileID: 131648907}
   m_Layer: 0
   m_Name: PlayerPivot
   m_TagString: PlayerPivot
@@ -156,6 +157,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &131648907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 131648905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3b58aad0b69d634f82d8fe1f8a9f80d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 181700845}
+  runSpeed: 30
+  pathWidth: 7.22
+  sideWaySpeed: 18
 --- !u!4 &150358997 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: c37b1ccfbc7ed274eb99f9d40e72c4e6, type: 3}
@@ -174,7 +191,6 @@ GameObject:
   - component: {fileID: 181700848}
   - component: {fileID: 181700847}
   - component: {fileID: 181700846}
-  - component: {fileID: 181700851}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Player
@@ -275,20 +291,6 @@ Transform:
   m_Father: {fileID: 1055378951}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &181700851
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 181700845}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e3b58aad0b69d634f82d8fe1f8a9f80d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pathWidth: 7.22
-  sideWaySpeed: 18
 --- !u!1001 &215331958
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1414,7 +1416,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SWIPE_THRESHOLD: 20
-  detectSwipeOnlyAfterRelease: 0
   detectObjectTap: 1
 --- !u!4 &2125934923
 Transform:
@@ -1442,9 +1443,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 891355610052c064aaf63762182cb5ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPivot: {fileID: 131648905}
-  runSpeed: 35
-  player: {fileID: 181700851}
 --- !u!1001 &2133336824
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,84 +1,85 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
+
+    private GameManager(){}
+
     private static GameManager manager;
+
+    public static GameManager Instance
+    {
+        get => manager;
+    }
+    
+    // For adding another state just add here
+    public enum GameState
+    {
+        PREP,MID,END
+    }
+
+    // UnityEvents for GameStates, automatically filled
+    public Dictionary<GameState,UnityEvent> events = new Dictionary<GameState, UnityEvent>();
+
 
     private void Awake()
     {
         manager = this;
         cam = Camera.main;
+        foreach (GameState gameState in Enum.GetValues(typeof(GameState)))
+        {
+            events.Add(gameState, new UnityEvent());
+        }
     }
 
-    public static GameManager getInstance()
+    // Register class for state listening, After registration create function with GameSate's name Ex: void PREP()
+    public void AddGameStateListener(UnityEngine.Object obj)
     {
-        return manager;
+        foreach(MethodInfo inf in obj.GetType().GetMethods())
+        {
+            foreach (GameState gameState in Enum.GetValues(typeof(GameState)))
+            {
+                if (inf.Name.Equals(gameState.ToString()))
+                {
+                    events[gameState].AddListener((UnityAction)Delegate.CreateDelegate(typeof(UnityAction), obj, inf.Name));
+                }
+            }
+        }
     }
-    
+
+    public void RemoveGameStateListener(UnityEngine.Object obj)
+    {
+        foreach (MethodInfo inf in obj.GetType().GetMethods())
+        {
+            foreach (GameState gameState in Enum.GetValues(typeof(GameState)))
+            {
+                if (inf.Name.Equals(gameState.ToString()))
+                {
+                    events[gameState].RemoveListener((UnityAction)Delegate.CreateDelegate(typeof(UnityAction), obj, inf.Name));
+                }
+            }
+        }
+    }
+
     public static Camera cam;
-    public GameObject playerPivot;
-    public float runSpeed = 30f;
-    public MovableCharacter player;
 
-    public enum GameState
-    {
-        Prepare,
-        MainGame,
-        FinishGame,
-    }
-
-    private GameState currentGameState;
+    private GameState currentGameState = GameState.PREP;
 
     public GameState CurrentGameState
     {
-        get { return currentGameState; }
-        set
-        {
-            switch (value)
-            {
-                case GameState.Prepare:
-                    break;
-                case GameState.MainGame:
-
-                    break;
-                case GameState.FinishGame:
-
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(value), value, null);
-            }
-
-            currentGameState = value;
-        }
-
+        get => currentGameState;
+        set => currentGameState = value;
     }
-
-    
 
     private void Update()
     {
-        switch (CurrentGameState)
-        {
-            case GameState.Prepare:
-                if (InputManager.getInstance().IsTap)
-                {
-                    Destroy(GameObject.FindGameObjectWithTag("UIStart"));
-                    CurrentGameState = GameState.MainGame;
-                }
-                
-                break;
-            case GameState.MainGame:
-                playerPivot.transform.localPosition += Vector3.forward * runSpeed * Time.deltaTime;
-                break;
-            case GameState.FinishGame:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-        
+        Debug.Log(currentGameState);
+        events[currentGameState].Invoke();
     }
 
 

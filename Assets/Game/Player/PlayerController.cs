@@ -2,68 +2,101 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MovableCharacter
+public class PlayerController : MonoBehaviour
 {
+    public GameObject player;
+    public float runSpeed = 30f;
     public float pathWidth = 8f;
     public float sideWaySpeed = 8f;
 
     private Vector3 slideStartPos;
-    // Start is called before the first frame update
+
+    // RegisterSwipe : registers for swipe actions
+    // AddGameStateListener : registers for gamestate events
     void Start()
     {
-        
+        GameManager.Instance.AddGameStateListener(this);
+        InputManager.Instance.RegisterSlide(OnSlide);
+        InputManager.Instance.RegisterTap(OnTap);
+        InputManager.Instance.RegisterSwipe(OnSwipe);
     }
 
-    // Update is called once per frame
-    void Update()
+    // only runs on GameState.MID
+    public void MID()
     {
+        transform.localPosition += Vector3.forward * runSpeed * Time.deltaTime;
     }
 
-    public override void onSlideStart()
+    // only runs if InputManager.tapAction invoked
+    private void OnTap(Tap tap)
     {
-        slideStartPos = transform.localPosition;
-    }
-
-    public override void onSlide(Vector2 distance)
-    {
-        Vector3 pos = transform.localPosition;
-        float posX = slideStartPos.x + (distance.x * sideWaySpeed);
-        float posY = slideStartPos.y + (distance.y * sideWaySpeed);
-        pos.x = posX;
-        pos.z = posY;
-        pos.x = Mathf.Clamp(pos.x, -pathWidth, pathWidth);
-        transform.localPosition = pos;
-        
-        //transform.position = Camera.main.ScreenToWorldPoint(slide); // new Vector3(slide.x/100, transform.position.y, transform.position.z);
-    }
-
-
-    public override void onSwipeLeft()
-    {
-        /*Vector3 move = transform.position + Vector3.left * sideWaySpeed;
-        if (Mathf.Abs(move.x - 0) <= pathWidth)
+        if(tap.Type == Tap.TapType.TAP)
         {
-            transform.position = move;
-        }*/
-    }
-
-    public override void onSwipeRight()
-    {
-        /*Vector3 move = transform.position + Vector3.right * sideWaySpeed;
-        if (Mathf.Abs(move.x - 0) <= pathWidth)
+            //Debug.Log("TAP");
+        }
+        else
         {
-            transform.position = move;
-        }*/
+            //Debug.Log("DOUBLE TAP");
+        }
     }
 
-    public override void onTap()
+    // only runs if InputManager.swipeAction invoked
+    private void OnSwipe(Swipe swipe)
     {
-        Debug.Log("Tap");
+        switch (swipe.Action)
+        {
+            case Swipe.SwipeAct.VERTICAL_UP:
+                //Debug.Log("SWIPE VERTICAL UP");
+                break;
+            case Swipe.SwipeAct.VERTICAL_DOWN:
+                //Debug.Log("SWIPE VERTICAL DOWN");
+                break;
+            case Swipe.SwipeAct.HORIZONTAL_LEFT:
+                //Debug.Log("SWIPE HORIZONTAL LEFT");
+                break;
+            case Swipe.SwipeAct.HORIZONTAL_RIGHT:
+                //Debug.Log("SWIPE HORIZONTAL RIGHT");
+                break;
+        }
     }
 
-    public override void onDoubleTap()
+    // only runs if InputManager.slideAction invoked
+    private void OnSlide(Slide slide)
     {
-        Debug.Log("Dobuel Tap");
-        transform.position += Vector3.up * 2;
+        if(slide.Action == Slide.SlideAct.START)
+        {
+            slideStartPos = player.transform.localPosition;
+            //Debug.Log("SLIDE START");
+        }
+        else if(slide.Action == Slide.SlideAct.END)
+        {
+            //Debug.Log("SLIDE END");
+        }
+        else
+        {
+            Vector3 pos = player.transform.localPosition;
+            float posX = slideStartPos.x + (slide.Distance.x * sideWaySpeed);
+            float posY = slideStartPos.y + (slide.Distance.y * sideWaySpeed);
+            pos.x = posX;
+            pos.z = posY;
+            pos.x = Mathf.Clamp(pos.x, -pathWidth, pathWidth);
+            player.transform.localPosition = pos;
+            switch (slide.Action)
+            {
+                case Slide.SlideAct.VERTICAL_UP:
+                    //Debug.Log("SLIDE VERTICAL UP");
+                    break;
+                case Slide.SlideAct.VERTICAL_DOWN:
+                    //Debug.Log("SLIDE VERTICAL DOWN");
+                    break;
+                case Slide.SlideAct.HORIZONTAL_LEFT:
+                    //Debug.Log("SLIDE HORIZONTAL LEFT");
+                    break;
+                case Slide.SlideAct.HORIZONTAL_RIGHT:
+                    //Debug.Log("SLIDE HORIZONTAL RIGHT");
+                    break;
+            }
+        }
     }
+
 }

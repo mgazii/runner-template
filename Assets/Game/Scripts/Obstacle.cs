@@ -8,7 +8,7 @@ public class Obstacle : MonoBehaviour
     {
         if(collision.gameObject.tag == "Player")
         {
-            GameManager.getInstance().CurrentGameState = GameManager.GameState.FinishGame;
+            GameManager.Instance.CurrentGameState = GameManager.GameState.END;
         }
     }
 }
